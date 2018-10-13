@@ -1,0 +1,270 @@
+//想输都难的三子棋小游戏
+
+//game.h
+#ifndef __GAME_H__
+#define __GAME_H__
+//包含头文件
+#include<stdio.h>
+#include<time.h>
+#include<stdlib.h>
+//定义棋盘大小
+#define ROW 3
+#define COL 3
+//声明初始化棋盘和展示棋盘函数
+void Initboard(char board[ROW][COL], int row, int col);
+void Displayboard(char board[ROW][COL], int row, int col);
+//声明玩家和电脑落子函数
+void computermove(char board[ROW][ROW],int row,int col);
+void playermove(char board[ROW][ROW],int row,int col);
+//声明判断胜负平的函数
+int Isfull(char board[ROW][COL],int row,int col);
+char Iswin(char board[ROW][COL],int row,int col);
+
+#endif __GAME_H__
+//test.c
+#include "game1.h"
+
+//菜单
+void menu()
+{
+	printf("╔--------------╗\n");
+	printf("║  1.开始游戏  ║\n");
+	printf("╠--------------╣\n");
+	printf("║  0.退出      ║\n");
+	printf("╚--------------╝\n");
+	printf("请选择:>\n");
+}
+//游戏实现
+void game()
+{	
+	//定义一个3*3的二维数组作为棋盘
+	char board[ROW][COL] = {0};
+	char ret = 0;
+	Initboard(board,ROW,COL);
+	Displayboard(board,ROW,COL);
+	//当没分出胜负或者棋盘没有落满时一直循环
+	do
+	{
+	printf("电脑落子\n");
+	computermove(board,ROW,COL);
+	Displayboard(board,ROW,COL);
+	//接受判断胜负的函数返回值并判断
+	ret = Iswin(board,ROW,COL);
+	if(ret != ' ')
+	{
+		break;
+	}
+	printf("玩家落子:>\n");
+	playermove(board,ROW,COL);
+	Displayboard(board,ROW,COL);
+	ret = Iswin(board,ROW,COL);
+	}
+	//只要棋盘未满且没分出胜负就一直循环
+	while(ret == ' ');
+	//输出游戏结果
+	if(ret == 'M')
+	{
+		printf("平局\n");
+	}
+	else if(ret == 'C')
+	{
+		printf("电脑赢\n");
+	}
+	else if(ret == 'P')
+	{
+		printf("玩家赢\n");
+	}
+}
+
+int main()
+{
+	int input = 0;
+	srand((unsigned int)time(NULL));
+	do
+	{
+		menu();
+		scanf("%d",&input);
+		//将接收到的数字进行判断实现不同操作
+		switch(input)
+		{
+			case 1:
+				game();
+				break;
+			case 0:
+				printf("退出游戏!\n");
+				break;
+			default:
+				printf("请重新输入!!!\n");
+				break;
+		}
+	}
+	//只要输入的值非0就一直循环
+	while(input);
+	return 0;
+}
+//game.c
+
+#include "game1.h"
+//初始化棋盘
+void Initboard(char board[ROW][COL],int row,int col)
+ {
+	int i = 0;
+	int j = 0;
+	for(i=0; i<row; i++)
+	{
+		for(j=0; j<col; j++)
+		{
+			board[i][j] = ' ';
+		}
+	}
+}
+//展示棋盘
+void Displayboard(char board[ROW][COL], int row, int col)
+{
+	int i = 0;
+	int j = 0;
+	for(i=0; i<row; i++)
+	{
+		//打印棋盘每一行
+		printf(" %c | %c | %c\n",board[i][0],board[i][1],board[i][2]); 
+		if(i != row-1) //最后一行下面不输出（无边界）
+		{
+			printf("------------\n");
+		}
+	}
+}
+//电脑落子
+void computermove(char board[ROW][ROW],int row,int col)
+{
+	int x = 0;
+	int y = 0;
+	//死循环直到合理落子
+	while(1)
+	{
+		//在0，1，2三个数中随即生成
+		x = rand(time)%ROW;
+		y = rand(time)%COL;
+		//判断若是棋盘位置无字则落子否则重新生成坐标
+		if(board[x][y] == ' ')
+		{
+			board[x][y] = '*';
+			break;
+		}
+	}
+}
+//玩家落子
+void playermove(char board[ROW][ROW],int row,int col)
+{
+	int x = 0;
+	int y = 0;
+	//输入坐标
+	scanf("%d%d",&x,&y);
+	//判断坐标合理性
+	if(x<4&&x>0&&y<4&&y>0)
+	{   
+		if(board[x-1][y-1] == ' ')
+		{
+			board[x-1][y-1] = 'o';
+		}
+		else if(board[x-1][y-1]!=' ')
+		{
+			printf("输入有误，请重新输入：\n");
+			//若此坐标已有子调用自身重新输入坐标
+			playermove(board,row,col);
+		}
+	}
+	else
+	{
+		printf("输入有误，请重新输入：\n");
+		//若输入错误调用自身重新输入坐标
+		playermove(board,row,col);
+	}
+}
+
+//棋盘下满
+//逐行判断棋盘若有空位返回1，若已下满返回0
+int Isfull(char board[ROW][COL],int row,int col)
+{
+	int x = 0;
+	int y = 0;
+	for(x=0; x<row; x++)
+	{
+		for(y=0; y<col; y++)
+		{
+			if(board[x][y] == ' ')
+				return 1;
+		}
+	}
+	return 0;
+}
+//判断胜利
+char Iswin(char board[ROW][COL],int row,int col)
+{
+	int tmp = 0;
+	char ret = '0';
+	int i = 0;
+	//tmp接收Isfull函数返回值
+	tmp = Isfull(board,row,col);
+	//若棋盘下满返回'M'，没下满返回' '
+	if(tmp == 1)
+	{
+		ret = ' ';
+	}
+	else if(tmp == 0)
+	{
+		ret = 'M';
+	}
+	//判断是否满足获胜条件
+	//电脑获胜返回'C' 玩家获胜返回'p'
+	for(i=0; i<row; i++)
+	{
+		if(board[i][0]==board[i][1]&&board[i][1]==board[i][2])
+		{
+			if(board[i][0]=='*')
+			{
+				ret = 'C';
+			}
+			else if(board[i][0]=='o')
+			{
+				ret = 'P';
+			}
+			break;
+		}
+		
+		if(board[0][i]==board[1][i]&&board[1][i]==board[2][i])
+		{
+			if(board[0][i]=='*')
+			{
+				ret = 'C';
+			}
+			else if(board[0][i]=='o')
+			{
+				ret = 'P';
+			}
+			break;
+		}
+	}
+	if(board[0][0]==board[1][1]&&board[1][1]==board[2][2])
+	{
+		if(board[0][0]=='*')
+			{
+				ret = 'C';
+			}
+			else if(board[0][0]=='o')
+			{
+				ret = 'P';
+			}
+	}
+	if(board[0][2]==board[1][1]&&board[1][1]==board[2][0])
+	{
+		if(board[0][2]=='*')
+			{
+				ret = 'C';
+			}
+			else if(board[0][2]=='o')
+			{
+				ret = 'P';
+			}
+	}
+	return ret;
+}
