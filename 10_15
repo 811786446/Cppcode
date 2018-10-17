@@ -4,6 +4,7 @@
 //00000000000000000000000000000001
 
 //1.写一个函数返回参数二进制中 1 的个数 
+//方法一：按位与
 //int count_one_bits(unsigned int value)
 //{
 //	int count = 0;
@@ -15,10 +16,6 @@
 	//		count++;
 	//	}
 	//}
-
-//		
-//	
-//	return count;
 //}
 //int main()
 //{
@@ -28,6 +25,36 @@
 //	ret = count_one_bits(value);
 //	printf("%d\n",ret);
 //	return 0;
+//}
+方法二：
+//#include <stdio.h>
+//int main()
+//{
+//int num = 10;
+//int count= 0;//计数
+//while(num)
+//{
+//if(num%2 == 1)
+//count++;
+//num = num/2;
+//}
+//printf("二进制中1的个数 = %d\n", count);
+//return 0;
+//}
+方法三：
+//#include <stdio.h>
+//int main()
+//{
+//int num = -1;
+//int i = 0;
+//int count = 0;//计数
+//while(num)
+//{
+//count++;
+//num = num&(num-1);
+//}
+//printf("二进制中1的个数 = %d\n",count);
+//return 0;
 //}
 
 
