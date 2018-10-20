@@ -1,0 +1,294 @@
+#ifndef __GAME2_H__
+#define __GAME2_H__
+
+#include<stdio.h>
+#include<stdlib.h>
+#include<time.h>
+
+//定义雷阵的大小
+#define ROW 9
+#define COL 9
+#define ROWS ROW+2
+#define COLS COL+2
+//定义不同难度雷的个数
+#define EASY 10
+#define MEDI 20
+#define DIFF 30
+
+//初始化雷阵函数
+void Initboard(char board[ROWS][COLS], int row, int col, char a);
+//打印雷阵函数
+void Showboard(char board[ROWS][COLS], int row, int col);
+//埋雷函数
+void Setmine(char mine[ROWS][COLS], int row, int col, int n);
+//寻雷函数
+void Findmine(char mine[ROWS][COLS],char show[ROWS][COLS], int row, int col, int n);
+//统计雷数函数
+int Minenum(char mine[ROWS][COLS], int x, int y);
+//展开函数
+void Unfold(char mine[ROWS][COLS], char show[ROWS][ROWS], int x, int y);
+//获胜函数
+int Iswin(char sow[ROWS][COLS], int row, int col);
+
+#endif __GAME2_H__
+
+
+include"game2.h"
+
+//菜单
+void menu1()
+{
+	printf("---------------- \n");
+	printf("▌ 1.开始游戏  ▌\n");
+	printf("---------------- \n");
+	printf("▌ 0.退出游戏  ▌\n");
+	printf("---------------- \n");
+	printf("请选择：");
+}
+void menu2()
+{
+	printf("---------------- \n");
+	printf("▌ 1.初级      ▌\n");
+	printf("---------------- \n");
+	printf("▌ 2.中级      ▌\n");
+	printf("---------------- \n");
+	printf("▌ 3.高级      ▌\n");
+	printf("---------------- \n");
+	printf("请选择：");
+}
+
+//游戏
+void game()
+{
+	//定义两个雷阵，一个用来埋雷，一个向用户展示
+	char mine[ROWS][COLS] = {'0'};
+	char show[ROWS][COLS] = {'0'};
+	int input = 0;
+	int n = 0;
+	//选择难度
+		    menu2();
+flag:       printf("请选择：");
+			scanf("%d",&input);
+			switch(input)
+			{
+			case 1:
+				n = EASY;
+				break;
+			case 2:
+				n = MEDI;
+				break;
+			case 3:
+				n = DIFF;
+				break;
+			default:
+				printf("请重新输入：\n");
+				goto flag;
+			}
+	//实现功能		
+	Initboard(mine,ROWS,COLS,'0');
+	Initboard(show,ROWS,COLS,'*');
+	Showboard(show,ROWS,COLS);
+	Setmine(mine,ROWS,COLS,n);
+	Showboard(mine,ROWS,COLS);
+	Findmine(mine,show,ROWS,COLS,n);
+}
+
+int main()
+{
+	int n = 0;
+	int input = 0;
+	do
+	{
+		//选择是否进行游戏
+		menu1();
+		printf("请选择：");
+		scanf("%d",&input);
+		printf("\n");
+		switch(input)
+		{		
+		case 1:
+			game();
+			break;
+		case 0:
+			printf("退出游戏!\n");
+			break;
+		default:
+			printf("请重新输入：\n");
+			break;
+		}	
+	}
+	while(input);
+	return 0;
+}
+
+include"game2.h"
+
+//初始化雷阵函数
+void Initboard(char board[ROWS][COLS], int row, int col, char a)
+{
+	int i = 0;
+	int j = 0;
+	for(i=0; i<row; i++)
+	{
+		for(j=0; j<col; j++)
+		{
+			//将字符a赋给雷阵每一个元素
+			board[i][j] = a;
+		}
+	}
+}
+
+//打印雷阵函数
+void Showboard(char board[ROWS][COLS], int row, int col)
+{
+	int i = 0;
+	int j = 0;
+	//每次打印都清屏
+	system("cls");
+	//想在第一行打印序列号
+	while(i <= 9)
+	{
+	printf("%d ",i);
+	i++;
+	}
+	printf("\n");
+	for(i=1; i<row-1; i++)
+	{
+		//打印行序列
+		printf("%d ",i);
+		for(j=1; j<col-1; j++)
+		{
+			//打印每一个元素
+			printf("%c ",board[i][j]);
+		}
+		printf("\n");
+	}
+}
+
+//埋雷函数
+void Setmine(char mine[ROWS][COLS], int row, int col, int n)
+{
+	int x = 0;
+	int y = 0;
+	srand((unsigned int)time(NULL));
+	//埋够雷数才停止
+	while(n)
+	{
+		//产生随机数
+		x = rand(time)%ROW + 1;
+		y = rand(time)%COL + 1;
+		if(x>=1 && y>=1)
+		{
+			//判断是否有雷
+			if(mine[x][y] != '1')
+			{
+				mine[x][y] = '1';
+				n--;
+			}
+		}
+	}
+}
+
+//寻雷函数
+void Findmine(char mine[ROWS][COLS],char show[ROWS][COLS], int row, int col, int n)
+{
+	int x = 0;
+	int y = 0;
+	do
+	{
+		printf("请输入排雷坐标：");
+		scanf("%d%d",&x,&y);
+		if(x>=1 && x<=9 && y>=1 && y<=9)
+		{
+			if('0' == mine[x][y])
+			{
+				Unfold(mine,show,row,col,x,y);
+			}
+			else
+			{
+				Showboard(mine,row,col);			
+				printf("你输了！\n");
+				break;
+			}
+		}
+		else
+		{
+			printf("请重新输入：");
+		}
+	}while(Iswin(show,row,col) - n != 0);
+   //若剩余*的数量等于雷数则获胜
+	if(Iswin(show,row,col) - n == 0)
+	{
+		printf("恭喜你，你赢了！\n");
+	}
+}
+
+//统计坐标周围八个方位的雷数
+int Minenum(char mine[ROWS][COLS], int x, int y)
+{
+	return mine[x-1][y]+
+		mine[x-1][y-1]+
+		mine[x][y-1]+
+		mine[x+1][y-1]+
+		mine[x+1][y]+
+		mine[x+1][y+1]+
+		mine[x][y+1]+
+		mine[x-1][y+1] - 8 * '0';
+}
+
+//展开函数
+void Unfold(char mine[ROWS][COLS], char show[ROWS][ROWS], int row, int col, int x, int y)
+{
+	int i = 0;
+	int j = 0;
+	//周围雷数为0则满足条件
+	//！ 逻辑非
+	if(! Minenum(mine,x,y))
+	{
+		show[x][y] = '0';
+		for(i=-1; i<=1; i++)
+		{
+			for(j=-1; j<=1; j++)
+			{
+				if(x+i>=1 && x+i<=row && y+j>=1 && y+j<=col)
+				{
+					if(i!=0 || j!=0)
+					{
+						if(show[x+i][y+j]!='0')
+						{
+							//递归
+							Unfold(mine,show,row,col,x+i,y+j);
+						}
+					}
+				}
+			}
+		}
+	}
+	else 
+	{
+		//如果周围有雷则打印雷数
+		show[x][y] = 48 + Minenum(mine,x,y);
+	}	
+	Showboard(show,row,col);
+}
+
+//获胜函数
+int Iswin(char show[ROWS][COLS], int row, int col)
+{
+	int i = 0;
+	int j = 0;
+	int count = 0;
+	for(i=1; i<row-1; i++)
+	{
+		for(j=1; j<col-1; j++)
+		{
+			//扫描show函数的每一行每一列若是统计*的数量
+			if('*' == show[i][j])
+			{
+				count++;
+			}
+		}
+	}
+	//返回*的数量
+	return count;
+}
