@@ -189,40 +189,56 @@ void Setmine(char mine[ROWS][COLS], int row, int col, int n)
 	}
 }
 
-//寻雷函数
 void Findmine(char mine[ROWS][COLS],char show[ROWS][COLS], int row, int col, int n)
 {
 	int x = 0;
 	int y = 0;
+	int first = 0;
 	do
 	{
 		printf("请输入排雷坐标：");
 		scanf("%d%d",&x,&y);
+
 		if(x>=1 && x<=9 && y>=1 && y<=9)
 		{
-			if('0' == mine[x][y])
+			//如果是游戏开始的第一步踩到雷则将雷变成安全的，重新生成一个雷
+			if(0 == first)
 			{
-				Unfold(mine,show,row,col,x,y);
+				if('1' == mine[x][y])
+				{
+					mine[x][y] = '0';
+					Setmine(mine,row,col,1);
+				}
+				first++;
 			}
-			else
+			if(first)
 			{
-				Showboard(mine,row,col);			
-				printf("你输了！\n");
-				break;
+				if('0' == mine[x][y])
+				{
+					Unfold(mine,show,row,col,x,y);
+				}
+				else
+				{
+					Showboard(mine,row,col);			
+					printf("你输了！\n");
+					break;
+				}
 			}
+		
 		}
 		else
 		{
 			printf("请重新输入：");
 		}
 	}while(Iswin(show,row,col) - n != 0);
-   //若剩余*的数量等于雷数则获胜
+	//若剩余*的数量等于雷数则获胜
 	if(Iswin(show,row,col) - n == 0)
 	{
 		printf("恭喜你，你赢了！\n");
 	}
 }
 
+//寻雷函数
 //统计坐标周围八个方位的雷数
 int Minenum(char mine[ROWS][COLS], int x, int y)
 {
